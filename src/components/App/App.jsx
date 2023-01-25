@@ -1,58 +1,62 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { Message } from 'components/Message/Message';
 import { Statistics } from 'components/Statistics/Statistics';
 import { FeedbackOptions } from 'components/FeedbackOptions/FeedbackOptions';
 import { Section } from 'components/Section/Section';
 import { Container, Heading } from 'components/App/App.styled';
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+export default function App() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+
+  const onLeaveFeedback = option => {
+    switch (option) {
+      case 'good':
+        setGood(good + 1);
+        break;
+      case 'neutral':
+        setNeutral(neutral + 1);
+        break;
+      case 'bad':
+        setBad(bad + 1);
+        break;
+      default:
+        return;
+    }
   };
 
-  onLeaveFeedback = option => {
-    this.setState({
-      [option]: this.state[option] + 1,
-    });
-  };
-
-  countTotalFeedback = () => {
-    const total = this.state.good + this.state.neutral + this.state.bad;
+  const countTotalFeedback = () => {
+    const total = good + neutral + bad;
     return total;
   };
-  countPositiveFeedbackPercentage = () => {
-    let positivePercentage = 0;
-    positivePercentage = (this.state.good / this.countTotalFeedback()) * 100;
+  const countPositiveFeedbackPercentage = () => {
+    const positivePercentage = (good / countTotalFeedback()) * 100;
     return Math.round(positivePercentage) || 0;
   };
 
-  render() {
-    return (
-      <Container>
-        <Heading>Cafe Expresso Feedback</Heading>
-        <Section title="Please leave feedback">
-          <FeedbackOptions
-            options={['good', 'neutral', 'bad']}
-            onLeaveFeedback={this.onLeaveFeedback}
+  return (
+    <Container>
+      <Heading>Cafe Expresso Feedback</Heading>
+      <Section title="Please leave feedback">
+        <FeedbackOptions
+          options={['good', 'neutral', 'bad']}
+          onLeaveFeedback={onLeaveFeedback}
+        />
+      </Section>
+      {countTotalFeedback() ? (
+        <Section title="Statistics">
+          <Statistics
+            total={countTotalFeedback()}
+            positiveFeedback={countPositiveFeedbackPercentage()}
+            good={good}
+            bad={bad}
+            neutral={neutral}
           />
         </Section>
-        {this.countTotalFeedback() ? (
-          <Section title="Statistics">
-            <Statistics
-              total={this.countTotalFeedback()}
-              positiveFeedback={this.countPositiveFeedbackPercentage()}
-              good={this.state.good}
-              bad={this.state.bad}
-              neutral={this.state.neutral}
-            />
-          </Section>
-        ) : (
-          <Message />
-        )}
-      </Container>
-    );
-  }
+      ) : (
+        <Message />
+      )}
+    </Container>
+  );
 }
-export default App;
